@@ -1,5 +1,8 @@
 # Data file
-*DATA/
+*.txt
 
 # log file
 *.log
+
+# Jupyter Notebook file
+*.ipynb
