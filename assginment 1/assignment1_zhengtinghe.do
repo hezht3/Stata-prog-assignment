@@ -2,9 +2,6 @@
 * ------------------------------ 340.600 Assignment 1 ------------------------------ *
 * ---------------------------------------------------------------------------------- *
 
-* working directory - pls change before running
-quietly cd "D:\OneDrive - Johns Hopkins\Course\340.600.71 - Stata Programming\assignment\Stata-prog-assignment\assginment 1"
-
 * log file
 capture log close
 log using assignment1_zhengtinghe.log, replace
