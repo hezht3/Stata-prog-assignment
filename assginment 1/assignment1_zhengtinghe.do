@@ -21,20 +21,20 @@ disp "Question 1: There are " r(N) " records in the dataset."
 
 * ----------------------------------- Question 2 ----------------------------------- *
 * summary statistics for male
-quietly summarize init_age if female == 0 & init_age != ., detail
-local mean_m = r(mean)
+quietly summarize init_age if female == 0 & !(missing(init_age)), detail
+local p50_m = r(p50)
 local p25_m = r(p25)
 local p75_m = r(p75)
 
 * summary statistics for female
-quietly summarize init_age if female == 1 & init_age != ., detail
-local mean_f = r(mean)
+quietly summarize init_age if female == 1 & !(missing(init_age)), detail
+local p50_f = r(p50)
 local p25_f = r(p25)
 local p75_f = r(p75)
 
 disp "Question 2: The median [IQR] age is " ///
-     %2.0f `mean_m' " [" %2.0f `p25_m' "-" %2.0f `p75_m' "] among males and " ///
-	 %2.0f `mean_f' " [" %2.0f `p25_f' "-" %2.0f `p75_f' "] among females."
+     %2.0f `p50_m' " [" %2.0f `p25_m' "-" %2.0f `p75_m' "] among males and " ///
+	 %2.0f `p50_f' " [" %2.0f `p25_f' "-" %2.0f `p75_f' "] among females."
 
 * ----------------------------------- Question 3 ----------------------------------- *
 quietly proportion prev if female == 0   // proportion for male
@@ -73,13 +73,13 @@ program define table1
 		 
 	* `Age'
 	quietly {
-		summarize init_age if female == 0 & init_age != ., detail   // male
+		summarize init_age if female == 0 & !(missing(init_age)), detail   // male
 		local median_m = r(p50)
 		local p25_m = r(p25)
 		local p75_m = r(p75)
 		
-		summarize init_age if female == 1 & init_age != ., detail   // female
-		local median_f = r(mean)
+		summarize init_age if female == 1 & !(missing(init_age)), detail   // female
+		local median_f = r(p50)
 		local p25_f = r(p25)
 		local p75_f = r(p75)
 	}
@@ -100,35 +100,42 @@ program define table1
          %2.1f `prop_f' "%"
 		 
     * `Cause of ESRD'
+	quietly {
+	    quietly sum female if female == 0   // male
+		global N_m = r(N)
+
+		quietly sum female if female == 1   // female
+		global N_f = r(N)
+	}
 	disp "Cause of ESRD:"
 	quietly tab dx female, matcell(x)
 	disp "Glomerular, %" _col(30) ///
-	     %2.1f x[1,1]*100/(x[1,1] + x[1,2]) "%" _col(60) ///
-		 %2.1f x[1,2]*100/(x[1,1] + x[1,2]) "%"
+	     %2.1f x[1,1]*100/`N_m' "%" _col(60) ///
+		 %2.1f x[1,2]*100/`N_f' "%"
 	disp "Diabetes, %" _col(30) ///
-	     %2.1f x[2,1]*100/(x[2,1] + x[2,2]) "%" _col(60) ///
-		 %2.1f x[2,2]*100/(x[2,1] + x[2,2]) "%"
+	     %2.1f x[2,1]*100/`N_m' "%" _col(60) ///
+		 %2.1f x[2,2]*100/`N_f' "%"
 	disp "PKD, %" _col(30) ///
-	     %2.1f x[3,1]*100/(x[3,1] + x[3,2]) "%" _col(60) ///
-		 %2.1f x[3,2]*100/(x[3,1] + x[3,2]) "%"
+	     %2.1f x[3,1]*100/`N_m' "%" _col(60) ///
+		 %2.1f x[3,2]*100/`N_f' "%"
 	disp "Hypertensive, %" _col(30) ///
-	     %2.1f x[4,1]*100/(x[4,1] + x[4,2]) "%" _col(60) ///
-		 %2.1f x[4,2]*100/(x[4,1] + x[4,2]) "%"
+	     %2.1f x[4,1]*100/`N_m' "%" _col(60) ///
+		 %2.1f x[4,2]*100/`N_f' "%"
 	disp "Renovascular, %" _col(30) ///
-	     %2.1f x[5,1]*100/(x[5,1] + x[5,2]) "%" _col(60) ///
-		 %2.1f x[5,2]*100/(x[5,1] + x[5,2]) "%"
+	     %2.1f x[5,1]*100/`N_m' "%" _col(60) ///
+		 %2.1f x[5,2]*100/`N_f' "%"
 	disp "Congenital, %" _col(30) ///
-	     %2.1f x[6,1]*100/(x[6,1] + x[6,2]) "%" _col(60) ///
-		 %2.1f x[6,2]*100/(x[6,1] + x[6,2]) "%"
+	     %2.1f x[6,1]*100/`N_m' "%" _col(60) ///
+		 %2.1f x[6,2]*100/`N_f' "%"
 	disp "Tubulo, %" _col(30) ///
-	     %2.1f x[7,1]*100/(x[7,1] + x[7,2]) "%" _col(60) ///
-		 %2.1f x[7,2]*100/(x[7,1] + x[7,2]) "%"
+	     %2.1f x[7,1]*100/`N_m' "%" _col(60) ///
+		 %2.1f x[7,2]*100/`N_f' "%"
 	disp "Neoplasm, %" _col(30) ///
-	     %2.1f x[8,1]*100/(x[8,1] + x[8,2]) "%" _col(60) ///
-		 %2.1f x[8,2]*100/(x[8,1] + x[8,2]) "%"
+	     %2.1f x[8,1]*100/`N_m' "%" _col(60) ///
+		 %2.1f x[8,2]*100/`N_f' "%"
 	disp "Other, %" _col(30) ///
-	     %2.1f x[9,1]*100/(x[9,1] + x[9,2]) "%" _col(60) ///
-		 %2.1f x[9,2]*100/(x[9,1] + x[9,2]) "%"
+	     %2.1f x[9,1]*100/`N_m' "%" _col(60) ///
+		 %2.1f x[9,2]*100/`N_f' "%"
 end
 
 table1
@@ -160,6 +167,6 @@ local N_total = r(N)
 disp "Question 7: This regression included " `N_logit' " observations whereas the study dataset has " `N_total' " observations in total."
 
 * ----------------------------------- Question 8 ----------------------------------- *
-disp "Question 8: I estimate that it took me 3 hours to complete this assignment."
+disp "Question 8: I estimate that it took me 4 hours to complete this assignment."
 
 log close
