@@ -1,5 +1,6 @@
 # Data file
 *.txt
+*.dta
 
 # log file
 *.log
