@@ -36,8 +36,8 @@ foreach i of local levels {
 
 
 ////// Question 1. ii)
-bysort px_id: egen peak_pra = max(pra)
-bysort px_id: gen i = [_n]==1
+bysort px_id hosp_id: egen peak_pra = max(pra)
+bysort px_id hosp_id: gen i = [_n]==1
 quietly sum peak_pra if i == 1, detail
 disp "Question 1.ii): The median (IQR) of peak_pra is " %2.1f r(p50) " (" %2.1f r(p25) "-" %2.1f r(p75) ")."
 
@@ -67,6 +67,6 @@ program define unilogit
 end
 
 // Question 3
-disp "Question 3: I estimate that it took me two hours to complete this assignment."
+disp "Question 3: I estimate that it took me three hours to complete this assignment."
 
 log close
